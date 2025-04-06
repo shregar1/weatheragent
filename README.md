@@ -222,7 +222,7 @@ To view traces and evaluations:
 
 ## Demo Video
 
-A Loom video explaining the implementation and demonstrating the application is available [here](https://www.loom.com/share/your-video-id).
+A Loom video explaining the implementation and demonstrating the application is available [here](https://drive.google.com/file/d/1SSQn_1Gn9vNOJUMKmNVoZ9wFdBIjpK9m/view?usp=drive_link).
 
 ## Future Improvements
 
@@ -240,5 +240,5 @@ MIT
 ## Contact
 
 For questions or feedback, please contact:
-- Email: your.email@example.com
-- GitHub: [yourusername](https://github.com/yourusername)
+- Email: sengarsinghshreyansh@gmail.com
+- GitHub: [shregar1](https://github.com/shregar1)
