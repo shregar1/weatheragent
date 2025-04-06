@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA
+from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain.prompts import PromptTemplate
 
 from config import LLM_MODEL, OPENAI_API_KEY
@@ -39,6 +39,7 @@ class LLMChain:
         """
         Create a chain for answering questions from documents
         """
+
         qa_chain = RetrievalQA.from_chain_type(
             llm=self.llm,
             chain_type="stuff",

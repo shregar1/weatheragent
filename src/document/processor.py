@@ -2,7 +2,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from config import CHUNK_SIZE, CHUNK_OVERLAP
 
+
 class DocumentProcessor:
+
     def __init__(self):
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE,

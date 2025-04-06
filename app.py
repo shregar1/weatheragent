@@ -47,37 +47,57 @@ def initialize_app():
 
     if not os.path.exists("data"):
         os.makedirs("data")
-
-    available_pdfs = doc_loader.list_available_pdfs()
+    
+    logger.debug("Loading processed files")
     processed_files = load_processed_files()
+    logger.debug("Loaded processed files")
 
+    logger.debug("Listing available documents")
     st.sidebar.title("Available Documents")
-    if available_pdfs:
-        for pdf in available_pdfs:
+    if processed_files:
+        for pdf in processed_files:
             st.sidebar.write(f"- {pdf}")
     else:
         st.sidebar.write("No PDFs available. Please upload some.")
+    logger.debug("Listed available documents")
 
+    logger.debug("Uploading new pdf file")
     uploaded_file = st.sidebar.file_uploader("Upload a PDF document", type="pdf")
     if uploaded_file:
+
+        logger.debug("Building file path")
         file_path = os.path.join("data", uploaded_file.name)
+        logger.debug("Built file path")
 
         if uploaded_file.name in processed_files:
+
+            logger.debug(f"{uploaded_file.name} already processed")
             st.sidebar.info(f"File {uploaded_file.name} already processed.")
+
         else:
+            
+            logger.debug("Sving uploaded file")
             with open(file_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
             logger.debug(f"Saved file: {uploaded_file.name}")
 
+            logger.debug("Loading uploading pdf file")
             documents = doc_loader.load_pdf(uploaded_file.name)
+            logger.debug("Loaded uploading pdf file")
+
+            logger.debug("Processing uploaded pdf file")
             processor = DocumentProcessor()
             chunks = processor.split_documents(documents)
+            logger.debug("Processed uploaded pdf file")
 
             logger.debug(f"Storing {len(chunks)} chunks in vector DB")
             vector_db = VectorDatabase()
             vector_db.store_documents(chunks)
+            logger.debug("Stored chunks in vecot DB")
 
+            logger.debug("Saving processed file metadata")
             save_processed_file(uploaded_file.name)
+            logger.debug("Saved processed file metadata")
 
             st.sidebar.success(f"File {uploaded_file.name} uploaded and processed successfully!")
             logger.debug("Rerunning the app to refresh the list")
@@ -111,9 +131,12 @@ def main():
     user_input = st.chat_input("Ask a question about weather or documents")
     if user_input:
 
+        logger.debug("Got user input")
+
         logger.debug("Adding user message to state")
-        st.session_state.messages.append(HumanMessage(content=user_input))
-        st.chat_message("user").write(user_input)
+        message = HumanMessage(content=user_input)
+        st.session_state.messages.append(message)
+        st.chat_message("user").write(message.content)
         logger.debug("Added user message to state")
         
         logger.debug("Creating agent executor")
@@ -126,12 +149,10 @@ def main():
         logger.debug("Executed agent")
         
         logger.debug("Displaying assistant response")
-        ai_message = result["messages"][-1]
-        st.session_state.messages.append(ai_message)
+        ai_message: AIMessage = result["messages"][-1]
+        st.session_state.messages.append(ai_message))
         st.chat_message("assistant").write(ai_message.content)
         logger.debug("Displayed assistant response")
-
-    logger.debug("Got user input")
 
 if __name__ == "__main__":
     main()

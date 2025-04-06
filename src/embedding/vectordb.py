@@ -18,6 +18,7 @@ class VectorDatabase:
         """
         Create collection if it doesn't exist
         """
+
         collections = self.client.get_collections().collections
         collection_names = [collection.name for collection in collections]
         
@@ -34,13 +35,18 @@ class VectorDatabase:
         """
         Store documents in the vector database
         """
+
+        logger.debug("Create collection if does not exist")
         self.create_collection_if_not_exists(collection_name)
+        logger.debug("Created collection")
         
+        logger.debug("Initializing vector store")
         vectorstore = QdrantVectorStore(
             client=self.client,
             collection_name=collection_name,
             embedding=self.embeddings
         )
+        logger.debug("Initialized vector store")
         
         logger.debug("Adding documents to the collection")
         vectorstore.add_documents(documents)
@@ -52,11 +58,14 @@ class VectorDatabase:
         """
         Get a retriever for the vector database
         """
+
+        logger.debug("Initializing vector store")
         vectorstore = QdrantVectorStore(
             client=self.client,
             collection_name=collection_name,
             embedding=self.embeddings
         )
+        logger.debug("Initialized vector store")
         
         return vectorstore.as_retriever(
             search_type="similarity",

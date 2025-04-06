@@ -4,30 +4,33 @@ from langchain_core.messages import BaseMessage
 
 from src.agent.nodes import AgentState, classify_query, get_weather, query_document, generate_response
 
+from config import logger
+
 
 def create_agent_graph():
     """
     Create a LangGraph for the agent
     """
-    # Create workflow
+
+    logger.debug("Creating workflow")
     workflow = StateGraph(AgentState)
     
-    # Add nodes
+    logger.debug("Adding nodes")
     workflow.add_node("classify_query", classify_query)
     workflow.add_node("get_weather", get_weather)
     workflow.add_node("query_document", query_document)
     workflow.add_node("generate_response", generate_response)
     
-    # Add edges
+    logger.debug("Add edges")
     workflow.add_edge("classify_query", "get_weather")
-    workflow.add_edge("get_weather", "query_document")
-    workflow.add_edge("query_document", "generate_response")
+    workflow.add_edge("classify_query", "query_document")
+    workflow.add_edge(["query_document", "get_weather"], "generate_response")
     workflow.add_edge("generate_response", END)
     
-    # Set entry point
+    logger.debug("Setting entry point")
     workflow.set_entry_point("classify_query")
     
-    # Compile the graph
+    logger.debug("Compiling the graph")
     agent_graph = workflow.compile()
     
     return agent_graph
@@ -42,7 +45,7 @@ def create_agent_executor():
         """
         Execute the agent with the given messages
         """
-        # Initialize state
+        logger.debug("Initializing state")
         state = AgentState(
             messages=messages,
             query_type="unknown",
@@ -50,9 +53,11 @@ def create_agent_executor():
             city="",
             documents=[]
         )
+        logger.debug("Initialized state")
         
-        # Execute the graph
+        logger.debug("Executing the graph")
         result = agent_graph.invoke(state)
+        logger.debug("Executed the graph")
         
         return result
     

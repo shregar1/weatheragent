@@ -26,10 +26,10 @@ def classify_query(state: AgentState) -> AgentState:
     Classify whether the query is about weather or documents
     """
 
-    # Extract the latest message
+    logger.debug("Extracting the latest message")
     last_message = state["messages"][-1].content
     
-    # Define classifier prompt
+    logger.debug("Defining classifier prompt")
     prompt = f"""
     Please determine if the following query is asking about weather or information from a document:
     
@@ -46,7 +46,7 @@ def classify_query(state: AgentState) -> AgentState:
     - city: The city name (only if type is "weather")
     """
     
-    # Use OpenAI to classify
+    logger.debug("Using OpenAI to classify")
     llm = ChatOpenAI(
         model=LLM_MODEL,
         openai_api_key=OPENAI_API_KEY,
@@ -55,7 +55,7 @@ def classify_query(state: AgentState) -> AgentState:
     
     response = llm.invoke(prompt)
     
-    # Parse the response to extract type and city
+    logger.debug("Parse the response to extract type and city")
 
     try:
         classification = json.loads(response.content)
@@ -74,20 +74,19 @@ def get_weather(state: AgentState) -> AgentState:
     """
     Fetch weather data for the specified city
     """
-    
-    # Only proceed if query type is weather
+
     if state["query_type"] != "weather":
         return state
     
-    # Get the city from the state
+    logger.debug("Getting the city from the state")
     city = state["city"]
     
-    # Get weather data
+    logger.debug("Getting weather data")
     weather_api = WeatherAPI()
     weather_data = weather_api.get_weather(city)
     formatted_weather = weather_api.format_weather_data(weather_data)
     
-    # Process with LLM
+    logger.debug("Processing with LLM")
     llm_chain = LLMChain()
     weather_prompt = llm_chain.create_weather_chain()
     
@@ -98,10 +97,10 @@ def get_weather(state: AgentState) -> AgentState:
     
     chain = chat_prompt | llm_chain.llm
     
-    # Get the question from the latest message
+    logger.debug("Getting the question from the latest message")
     question = state["messages"][-1].content
     
-    # Get response
+    logger.debug("Getting response")
     result = chain.invoke({
         "weather_data": formatted_weather,
         "question": question
@@ -116,22 +115,21 @@ def query_document(state: AgentState) -> AgentState:
     Query documents based on the input
     """
     
-    # Only proceed if query type is document
     if state["query_type"] != "document":
         return state
     
-    # Get the question from the latest message
+    logger.debug("Get the question from the latest message")
     question = state["messages"][-1].content
     
-    # Get vector database retriever
+    logger.debug("Getting vector database retriever")
     vector_db = VectorDatabase()
     retriever = vector_db.get_retriever()
     
-    # Create QA chain
+    logger.debug("Creating QA chain")
     llm_chain = LLMChain()
     qa_chain = llm_chain.create_document_chain(retriever)
     
-    # Get response
+    logger.debug("Getting response")
     result = qa_chain({"query": question})
     
     state["response"] = result["result"]
@@ -142,6 +140,7 @@ def generate_response(state: AgentState) -> AgentState:
     """
     Generate a response based on the query type
     """
+
     if state["query_type"] == "unknown":
         state["response"] = """I'm not sure if you're asking about weather or about information from a document. 
         
@@ -149,7 +148,7 @@ Could you please clarify your question?
 - For weather information, please ask about the weather in a specific city.
 - For document information, please ask about the content of the available documents."""
     
-    # Add the response as an AI message
+    logger.debug("Adding the response as an AI message")
     state["messages"].append(AIMessage(content=state["response"]))
     
     return state

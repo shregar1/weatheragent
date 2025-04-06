@@ -6,6 +6,7 @@ from config import LANGCHAIN_API_KEY
 
 
 class LLMEvaluation:
+
     def __init__(self):
         self.client = Client(api_key=LANGCHAIN_API_KEY)
     
@@ -13,6 +14,7 @@ class LLMEvaluation:
         """
         Evaluate LLM responses using LangSmith
         """
+
         eval_config = RunEvalConfig(
             evaluators=[
                 EvaluatorType.QA,

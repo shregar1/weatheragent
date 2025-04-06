@@ -3,7 +3,9 @@ from langchain_community.document_loaders import PyPDFLoader
 
 from config import PDF_DIRECTORY
 
+
 class DocumentLoader:
+
     def __init__(self):
         self.pdf_directory = PDF_DIRECTORY
     
