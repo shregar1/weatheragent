@@ -1,9 +1,9 @@
 import json
 
-from typing import List, TypedDict, Literal
 from langchain_core.messages import BaseMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from typing import Annotated, List, TypedDict, Literal
 
 from config import OPENAI_API_KEY, LLM_MODEL, logger
 
@@ -14,7 +14,7 @@ from src.llm.chain import LLMChain
 
 class AgentState(TypedDict):
 
-    messages: List[BaseMessage]
+    messages: Annotated[List[BaseMessage], "accumulate"]
     query_type: Literal["weather", "document", "unknown"]
     response: str
     city: str
@@ -130,7 +130,7 @@ def query_document(state: AgentState) -> AgentState:
     qa_chain = llm_chain.create_document_chain(retriever)
     
     logger.debug("Getting response")
-    result = qa_chain({"query": question})
+    result = qa_chain.invoke({"query": question})
     
     state["response"] = result["result"]
     

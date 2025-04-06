@@ -150,7 +150,7 @@ def main():
         
         logger.debug("Displaying assistant response")
         ai_message: AIMessage = result["messages"][-1]
-        st.session_state.messages.append(ai_message))
+        st.session_state.messages.append(ai_message)
         st.chat_message("assistant").write(ai_message.content)
         logger.debug("Displayed assistant response")
 

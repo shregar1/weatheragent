@@ -22,9 +22,17 @@ def create_agent_graph():
     workflow.add_node("generate_response", generate_response)
     
     logger.debug("Add edges")
-    workflow.add_edge("classify_query", "get_weather")
-    workflow.add_edge("classify_query", "query_document")
-    workflow.add_edge(["query_document", "get_weather"], "generate_response")
+    workflow.add_conditional_edges(
+        "classify_query",
+        lambda state: state["query_type"],
+        {
+            "weather": "get_weather",
+            "document": "query_document",
+            "unknown": "generate_response"
+        }
+    )
+    workflow.add_edge("get_weather", "generate_response")
+    workflow.add_edge("query_document", "generate_response")
     workflow.add_edge("generate_response", END)
     
     logger.debug("Setting entry point")
