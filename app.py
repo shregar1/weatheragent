@@ -12,10 +12,27 @@ from src.embedding.vectordb import VectorDatabase
 from config import logger, PROCESSED_FILE_PATH
 
 def load_processed_files():
+    """
+    Load the list of processed files and ensure they still exist in the data/ folder.
+    Clean up any entries for missing files.
+    """
+    processed = []
     if os.path.exists(PROCESSED_FILE_PATH):
         with open(PROCESSED_FILE_PATH, "r") as f:
-            return json.load(f)
-    return []
+            try:
+                processed = json.load(f)
+            except json.JSONDecodeError:
+                logger.warning("Processed file tracking JSON was empty or malformed. Resetting.")
+                processed = []
+
+    logger.debug("Filter to include only files that still exist in the `data/` directory")
+    processed = [file for file in processed if os.path.exists(os.path.join("data", file))]
+
+    logger.debug("Rewrite the JSON to reflect accurate file existence")
+    with open(PROCESSED_FILE_PATH, "w") as f:
+        json.dump(processed, f)
+
+    return processed
 
 def save_processed_file(filename):
     processed = load_processed_files()
