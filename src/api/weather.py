@@ -1,6 +1,6 @@
 import requests
 
-from config import OPENWEATHER_API_KEY
+from config import OPENWEATHER_API_KEY, logger
 
 class WeatherAPI:
     def __init__(self):
@@ -24,8 +24,9 @@ class WeatherAPI:
             response = requests.get(self.base_url, params=params)
             response.raise_for_status()
             return response.json()
-        except requests.RequestException as e:
-            return {"error": str(e)}
+        except Exception as err:
+            logger.error(f"Exception occured while calling weatehr api: {err}")
+            return {"error": str(err)}
     
     def format_weather_data(self, data):
         """

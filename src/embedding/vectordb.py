@@ -1,11 +1,12 @@
 from langchain_openai import OpenAIEmbeddings
-from langchain_qdrant import Qdrant
+from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 
-from config import QDRANT_URL, QDRANT_COLLECTION_NAME, OPENAI_API_KEY, EMBEDDING_MODEL
+from config import QDRANT_URL, QDRANT_COLLECTION_NAME, OPENAI_API_KEY, EMBEDDING_MODEL, logger
 
 
 class VectorDatabase:
+
     def __init__(self):
         self.client = QdrantClient(url=QDRANT_URL)
         self.embeddings = OpenAIEmbeddings(
@@ -35,24 +36,26 @@ class VectorDatabase:
         """
         self.create_collection_if_not_exists(collection_name)
         
-        vectorstore = Qdrant(
+        vectorstore = QdrantVectorStore(
             client=self.client,
             collection_name=collection_name,
-            embeddings=self.embeddings
+            embedding=self.embeddings
         )
         
-        # Add documents to the collection
+        logger.debug("Adding documents to the collection")
         vectorstore.add_documents(documents)
+        logger.debug("Added documents to the collection")
+
         return vectorstore
     
     def get_retriever(self, collection_name=QDRANT_COLLECTION_NAME):
         """
         Get a retriever for the vector database
         """
-        vectorstore = Qdrant(
+        vectorstore = QdrantVectorStore(
             client=self.client,
             collection_name=collection_name,
-            embeddings=self.embeddings
+            embedding=self.embeddings
         )
         
         return vectorstore.as_retriever(

@@ -4,7 +4,6 @@ import sys
 from dotenv import load_dotenv
 from loguru import logger
 
-logger.remove(0)
 logger.add(sys.stderr, colorize=True, format="<green>{time:MMMM-D-YYYY}</green> | <black>{time:HH:mm:ss}</black> | <level>{level}</level> | <cyan>{message}</cyan> | <magenta>{name}:{function}:{line}</magenta> | <yellow>{extra}</yellow>")
 
 logger.info("Loading Environment Variables")
@@ -28,8 +27,9 @@ logger.info("Loaded Vector Database Configuration")
 
 logger.info("Loading Application Configuration")
 PDF_DIRECTORY = os.getenv("PDF_DIRECTORY")
-CHUNK_SIZE = os.getenv("CHUNK_SIZE")
-CHUNK_OVERLAP = os.getenv("CHUNK_OVERLAP")
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200
+PROCESSED_FILE_PATH = "processed_files.json"
 logger.info("Loaded Application Configuration")
 
 logger.info("Loaded Environment Variables")
